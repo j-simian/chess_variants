@@ -1,8 +1,7 @@
 import Piece from "./Piece";
 
-class King extends Piece {
+class Knight extends Piece {
 	constructor(team: number) {
 		super(team);
 	}
-
 }

@@ -21,10 +21,6 @@ abstract class Board {
 	sizeX: number = 0;
 	sizeY: number = 0;
 
-	constructor() {
-
-	}
-
 	abstract getPiece(pos: Position): BoardSquare;
 	abstract getPath(src: Position, dest: Position): Position[];
 
