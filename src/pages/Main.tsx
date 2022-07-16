@@ -1,10 +1,13 @@
 import React from 'react';
 
+import { InGamePageContainer } from "../components/PageContainer/PageContainer";
+import BoardView from "../components/BoardView/BoardView";
+
 const MainPage = () => {
 	return (
-		<div className="mainPage">
-						
-		</div>
+		<InGamePageContainer>
+			<BoardView />
+		</InGamePageContainer>
 	);
 };
 

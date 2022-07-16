@@ -1,3 +1,4 @@
+import {NumberLiteralType} from "typescript";
 import { PieceType } from "../pieces/Piece";
 
 export type Position = { x: number, y: number };
@@ -17,6 +18,8 @@ abstract class Board {
 	protected moveNumber: number = 0;
 	protected abstract teams: number;
 	protected currTeam: number = 0;
+	sizeX: number = 0;
+	sizeY: number = 0;
 
 	constructor() {
 

@@ -5,6 +5,8 @@ class StandardBoard extends Board {
 
 	private board: BoardSquare[][] = [[]];
 	teams = 2;
+	sizeX = 8;
+	sizeY = 8;
 
 	constructor() {
 		super();
