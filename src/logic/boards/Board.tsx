@@ -17,7 +17,7 @@ abstract class Board {
 
 	protected moveNumber: number = 0;
 	protected abstract teams: number;
-	protected currTeam: number = 0;
+	currTeam: number = 0;
 	sizeX: number = 0;
 	sizeY: number = 0;
 
