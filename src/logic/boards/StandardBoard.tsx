@@ -78,7 +78,7 @@ class StandardBoard extends Board {
 			[ empty, empty, empty, empty,
 				empty, empty, empty, empty ],
 			[ empty, empty, empty, empty,
-				empty, blackPawn, empty, empty ],
+				empty, empty, empty, empty ],
 			[ whitePawn, whitePawn, whitePawn, whitePawn,
 				whitePawn, whitePawn, whitePawn, whitePawn ],
 			[ whiteRook, whiteKnight, whiteBishop, whiteQueen,
@@ -114,11 +114,47 @@ class StandardBoard extends Board {
 		}
 		return path;
 	}
+	 
+	isPieceInPath(team: number, path: Position[]): boolean {
+		path.pop();
+		path.shift();
+		if(path.some((pos: Position) => this.getPiece(pos)?.type != Empty.None)) return true;
+		return false;
+	}
+
+	movePutsInCheck(src: Position, dest: Position): boolean {
+		let piece = this.getPiece(src);
+		let target = this.getPiece(dest);
+		this.board[dest.y][dest.x] = piece;
+		this.board[src.y][src.x] = { type: Empty.None };
+		let kingPos = { x: -1, y: -1 };
+		for (let ii = 0; ii < this.sizeX; ii++) {
+			for (let jj = 0; jj < this.sizeY; jj++) {
+				let currPos = { x: jj, y: ii }
+				if(this.getPiece(currPos).type == PieceType.King && this.getPiece(currPos).team! == piece.team) {
+					kingPos = currPos;
+				}
+			}
+		}
+		for (let ii = 0; ii < this.sizeX; ii++) {
+			for (let jj = 0; jj < this.sizeY; jj++) {
+				let currPos = { x: jj, y: ii }
+				if(this.getPiece(currPos).type!=Empty.None && this.getPiece(currPos).team != piece.team && this.isMovePossible(currPos, kingPos)) {
+					this.board[dest.y][dest.x] = target;
+					this.board[src.y][src.x] = piece;
+					return true;
+				}
+			}
+		}
+		this.board[dest.y][dest.x] = target;
+		this.board[src.y][src.x] = piece;
+		return false;
+	}
 
 	movePiece(src: Position, dest: Position): Board {
 		let piece = this.getPiece(src);
 		// Ensure the move is valid
-		if(!this.isMovePossible(src, dest)){
+		if(!this.isMovePossible(src, dest) || piece.team !== this.currTeam){
 			console.error(`InvalidMoveException: Team ${this.currTeam} tried to move from [${src.x}, ${src.y}] to [${dest.x}, ${dest.y}] on move ${this.moveNumber}`);	
 			return this;
 		}
@@ -141,13 +177,13 @@ class StandardBoard extends Board {
 
 	isMovePossible(src: Position, dest: Position): boolean {
 		let { type, team } = this.getPiece(src);
-		if(team != this.currTeam) return false;
 		// if(Object.values(Empty).includes(typeof type)) return false;
 		if(dest.x < 0 || dest.y < 0 || dest.x > this.sizeX || dest.y > this.sizeY ) return false;
 		if(dest.x == src.x && dest.y == src.y) return false;
 		let path = this.getPath(src, dest);
 		if(this.getPiece(dest).type != Empty.None && this.getPiece(dest).team == team) return false;
-		if(this.isPieceInPath(team, path)) return false;
+		if(this.isPieceInPath(team!, path)) return false;
+		if(this.movePutsInCheck(src, dest)) return false;
 		switch (type) {
 			case PieceType.King:
 				return this.isMovePossibleKing(src, dest);
@@ -205,18 +241,12 @@ class StandardBoard extends Board {
 				&& capture.type != Empty.InvalidSquare
 				&& capture.team != team
 			) return true; // Capture
+		if(capture.type != Empty.None) return false;
 		if(dest.y-src.y == 2*(team * (2) - 1) 
 				&& dest.x-src.x == 0 
 				&& !this.pawnsMoved[team][src.x]
 			) return true;
 		if(dest.y-src.y == team * (2) - 1 && dest.x-src.x == 0) return true;
-		return false;
-	}
-	 
-	isPieceInPath(team: number, path: Position[]): boolean {
-		path.pop();
-		path.shift();
-		if(path.some((pos: Position) => this.getPiece(pos)?.type != Empty.None)) return true;
 		return false;
 	}
 }

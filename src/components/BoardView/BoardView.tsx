@@ -34,7 +34,10 @@ const BoardView = () => {
 					onSelect={ selectPiece }
 					highlight={  
 						board.getPiece(selectedPiece).type != Empty.InvalidSquare && 
-							board.isMovePossible(selectedPiece, currPos) }
+						board.isMovePossible(selectedPiece, currPos) &&
+						board.getPiece(selectedPiece).team == board.currTeam	
+					}
+						
 			/>);	
 		}	
 		let row = <BoardRow>{rowCells}</BoardRow>;
