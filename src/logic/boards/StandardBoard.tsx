@@ -8,9 +8,19 @@ class StandardBoard extends Board {
 	sizeX = 8;
 	sizeY = 8;
 
+	pawnsMoved: boolean[][] = [];
+	
+
 	constructor() {
 		super();
 		this.initBoard();
+		for (let ii = 0; ii < this.teams; ii++) {
+			let pawnsMovedRow = [];
+			for (let jj = 0; jj < this.sizeX; jj++) {
+				pawnsMovedRow.push(false);
+			}
+			this.pawnsMoved.push(pawnsMovedRow);
+		}
 	}
 
 	getPiece(pos: Position): BoardSquare {
@@ -55,7 +65,7 @@ class StandardBoard extends Board {
 		const whiteKnight = { type: PieceType.Knight, team: 0 };
 		const whiteRook = { type: PieceType.Rook, team: 0 };
 		const whitePawn = { type: PieceType.Pawn, team: 0 };
-		const empty = { type: Empty.None };
+		const empty = { type: Empty.None, team: -1 };
 		this.board = [
 			[ blackRook, blackKnight, blackBishop, blackQueen,
 				blackKing, blackBishop, blackKnight, blackRook ],
@@ -68,7 +78,7 @@ class StandardBoard extends Board {
 			[ empty, empty, empty, empty,
 				empty, empty, empty, empty ],
 			[ empty, empty, empty, empty,
-				empty, empty, empty, empty ],
+				empty, blackPawn, empty, empty ],
 			[ whitePawn, whitePawn, whitePawn, whitePawn,
 				whitePawn, whitePawn, whitePawn, whitePawn ],
 			[ whiteRook, whiteKnight, whiteBishop, whiteQueen,
@@ -79,49 +89,64 @@ class StandardBoard extends Board {
 	
 	getPath(src: Position, dest: Position): Position[] {
 		let path: Position[] = [];
-		if(src.x == dest.x && src.y == dest.y) path = [src];
-		if(src.x == dest.x) {
-			for (let ii = src.y; ii < dest.y+1; ii++) {
-				path.push({ x: src.x, y: src.y+ii });
+		if(src == dest) path = [src];
+		else if(src.x == dest.x) {
+			let dist = Math.abs(dest.y-src.y);
+			let dir = (dest.y-src.y) / dist;
+			for (let ii = 0; ii <= dist; ii++) {
+				path.push({ x: src.x, y: src.y+(ii*dir) });
 			}	
 		}
-		if (src.y == dest.y) {
-			for (let ii = src.x; ii < dest.x+1; ii++) {
-				path.push({ x: src.x+ii, y: src.y });
+		else if (src.y == dest.y) {
+			let dist = Math.abs(src.x-dest.x);
+			let dir = (dest.x-src.x) / dist;
+			for (let ii = 0; ii <= dist; ii++) {
+				path.push({ x: src.x+(ii*dir), y: src.y });
 			}	
 		}
-		if (Math.abs(dest.x-src.x) == Math.abs(dest.y-src.y)) {
-			for (let ii = src.x; ii < dest.x+1; ii++) {
-				path.push({ x: src.x+ii, y: src.y+ii });
+		else if (Math.abs(dest.x-src.x) == Math.abs(dest.y-src.y)) {
+			let dist = Math.abs(src.x-dest.x);
+			let dirX = (dest.x-src.x) / dist;
+			let dirY = (dest.y-src.y) / dist;
+			for (let ii = 0; ii <= dist; ii++) {
+				path.push({ x: src.x+(ii*dirX), y: src.y+(ii*dirY) });
 			}	
 		}
 		return path;
 	}
 
-	movePiece(src: Position, dest: Position) {
+	movePiece(src: Position, dest: Position): Board {
 		let piece = this.getPiece(src);
 		// Ensure the move is valid
 		if(!this.isMovePossible(src, dest)){
-			console.error(`InvalidMoveException: Team ${this.currTeam} tried to move from ${src} to ${dest} on move ${this.moveNumber}`);	
+			console.error(`InvalidMoveException: Team ${this.currTeam} tried to move from [${src.x}, ${src.y}] to [${dest.x}, ${dest.y}] on move ${this.moveNumber}`);	
+			return this;
 		}
+		let ans = this;
 
 		// Swap the pieces
-		this.board[src.x][src.y] = { type: Empty.None }
-		this.board[dest.x][dest.y] = piece;
+		ans.board[dest.y][dest.x] = piece;
+		ans.board[src.y][src.x] = { type: Empty.None };
+		console.log(`Team ${this.currTeam} moved from [${src.x}, ${src.y}] to [${dest.x}, ${dest.y}] on move ${this.moveNumber}`);	
 
 		// Increment move and team counter
-		this.currTeam += 1;
-		this.currTeam %= this.teams;
-		if(piece.team == 0) this.moveNumber++;
+		if(piece.type == PieceType.Pawn) {
+			ans.pawnsMoved[piece.team!][src.x] = true;
+		}
+		ans.currTeam += 1;
+		ans.currTeam %= this.teams;
+		if(piece.team == 0) ans.moveNumber++;
+		return ans;
 	}
 
 	isMovePossible(src: Position, dest: Position): boolean {
 		let { type, team } = this.getPiece(src);
 		if(team != this.currTeam) return false;
-		if(Object.values(Empty).includes(typeof type)) return false;
+		// if(Object.values(Empty).includes(typeof type)) return false;
 		if(dest.x < 0 || dest.y < 0 || dest.x > this.sizeX || dest.y > this.sizeY ) return false;
-		if(dest == src) return false;
+		if(dest.x == src.x && dest.y == src.y) return false;
 		let path = this.getPath(src, dest);
+		if(this.getPiece(dest).type != Empty.None && this.getPiece(dest).team == team) return false;
 		if(this.isPieceInPath(team, path)) return false;
 		switch (type) {
 			case PieceType.King:
@@ -142,7 +167,7 @@ class StandardBoard extends Board {
 	}
 
 	isMovePossibleKing(src: Position, dest: Position): boolean {
-		if(Math.abs(dest.x-src.x) > 1 && Math.abs(dest.y-src.y) > 1) return false;
+		if(Math.abs(dest.x-src.x) > 1 || Math.abs(dest.y-src.y) > 1) return false;
 		return true;
 	}
 
@@ -159,7 +184,9 @@ class StandardBoard extends Board {
 	}
 
 	isMovePossibleKnight(src: Position, dest: Position): boolean {
-		return true;
+		if(Math.abs(dest.x-src.x) == 1 && Math.abs(dest.y-src.y) == 2) return true;
+		if(Math.abs(dest.x-src.x) == 2 && Math.abs(dest.y-src.y) == 1) return true;
+		return false;
 	}
 
 	isMovePossibleRook(src: Position, dest: Position): boolean {
@@ -170,22 +197,26 @@ class StandardBoard extends Board {
 
 	isMovePossiblePawn(team: number, src: Position, dest: Position): boolean {
 		// TODO en-passant
-		let path = this.getPath(src, dest);
-		if(dest.y-src.y != team * (-2) + 1 
+		let piece = this.getPiece(src);
+		let capture = this.getPiece(dest);
+		if(dest.y-src.y == team * (2) - 1 
 				&& Math.abs(dest.x-src.x) == 1 
-				&& this.getPiece(dest).team != team) return true; // Capture
-		if(dest.y-src.y != team * (-2) + 1 && dest.x-src.x == 0) return false;
-		return true;
+				&& capture.type != Empty.None
+				&& capture.type != Empty.InvalidSquare
+				&& capture.team != team
+			) return true; // Capture
+		if(dest.y-src.y == 2*(team * (2) - 1) 
+				&& dest.x-src.x == 0 
+				&& !this.pawnsMoved[team][src.x]
+			) return true;
+		if(dest.y-src.y == team * (2) - 1 && dest.x-src.x == 0) return true;
+		return false;
 	}
 	 
 	isPieceInPath(team: number, path: Position[]): boolean {
-		if(path.find(
-					(pos: Position) => this.getPiece(pos).team! == team
-		)) return true;
 		path.pop();
-		if(path.find(
-					(pos: Position) => this.getPiece(pos).team! == team
-		)) return true;
+		path.shift();
+		if(path.some((pos: Position) => this.getPiece(pos)?.type != Empty.None)) return true;
 		return false;
 	}
 }

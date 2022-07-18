@@ -7,21 +7,17 @@ import BoardCell from "./BoardCell";
 import { PieceStyled } from "./BoardCell.styles";
 
 const BoardView = () => {
-	let [ board, setBoard ] = useState<Board>(new StandardBoard());
+	let board: Board = new StandardBoard();
 	let cells = [];
 	let [ selectedPiece, setSelectedPiece ] = useState<Position>({ x: -1, y: -1 });
 
 
 	function selectPiece(pos: Position) {
-		let piece = board.getPiece(selectedPiece);
-		if(piece.type != Empty.None && piece.type != Empty.InvalidSquare) {
-			setBoard(board.movePiece(selectedPiece, pos));
-			setSelectedPiece({ x: -1, y: -1 })
-		} else {
-			setSelectedPiece(pos);
-		}
+		setSelectedPiece(pos);
 	}
 
+	let testPath = board.getPath({x: 5, y: 6}, {x: 5, y: 4});
+	testPath.shift();
 
 	for (let ii = 0; ii < board.sizeX; ii++) {
 		let rowCells = [];
@@ -33,9 +29,11 @@ const BoardView = () => {
 					board={ board }
 					onSelect={ selectPiece }
 					highlight={  
-						board.getPiece(selectedPiece).type != Empty.InvalidSquare && 
-							board.isMovePossible(selectedPiece, currPos) }
+					testPath.some( (a: Position) => (a.x == currPos.x && a.y == currPos.y) )}
+					// 	board.getPiece(selectedPiece).type != Empty.InvalidSquare && 
+					// 		board.isMovePossible(selectedPiece, currPos) }
 			/>);	
+			// board.getPiece({ x: ii, y: jj });
 		}	
 		let row = <BoardRow>{rowCells}</BoardRow>;
 		cells.push(row);

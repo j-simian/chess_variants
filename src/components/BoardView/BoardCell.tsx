@@ -1,18 +1,26 @@
-import React from 'react';
+import React, { MouseEvent } from 'react';
 
 import BoardCellStyled, { PieceStyled } from "./BoardCell.styles";
-import { BoardSquare, Empty } from "../../logic/boards/Board";
+import Board, { Empty, Position, BoardSquare } from "../../logic/boards/Board";
 
 interface BoardCellProps {
 	colour: number,
-	piece: BoardSquare,
-	drag: (e: MouseEvent, piece: BoardSquare) => void,
+	pos: Position,
+	board: Board,
+	onSelect: (piece: Position) => void
+	highlight: boolean
 }
 
-const BoardCell = ({ colour, piece, drag }: BoardCellProps) => {
+const BoardCell = ({ colour, pos, board, onSelect, highlight }: BoardCellProps) => {
+	let piece = board.getPiece(pos);
 	return (
-		<BoardCellStyled colour={ colour } onClick{ e => drag(e, piece) }>
-			{ piece.type != Empty.None && <PieceStyled piece={ piece } /> }
+			<BoardCellStyled colour={ colour } highlight={ highlight } onClick={ (e: MouseEvent<HTMLDivElement>) => onSelect(pos) }
+		>
+			{ piece.type != Empty.None && 
+			<PieceStyled 
+				piece={ piece } 
+			/> 
+			}
 		</BoardCellStyled>
 	);
 };

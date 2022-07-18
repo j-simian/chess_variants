@@ -36,7 +36,7 @@ abstract class Board {
 	 * @param src: Position - the position of the piece to move
 	 * @param dest: Position - the target position
 	 */
-	abstract movePiece(src: Position, dest: Position): void;
+	abstract movePiece(src: Position, dest: Position): Board;
 
 	/**
 	 * States if a move is allowed.
