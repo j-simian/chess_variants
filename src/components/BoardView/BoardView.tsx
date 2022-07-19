@@ -45,9 +45,17 @@ const BoardView = () => {
 	}
 
 	return (
-		<BoardContainer>
-			{ cells }
-		</BoardContainer>
+		<>
+			<BoardContainer>
+				{ cells }
+			</BoardContainer>
+			<p>
+			{ 
+				board.isPositionCheckmate(0) ? "Black Won!" : 
+					board.isPositionCheckmate(1) ? "White Won!" : "" 
+			}
+			</p>
+		</>
 	);
 };
 

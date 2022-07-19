@@ -23,13 +23,6 @@ class StandardBoard extends Board {
 		}
 	}
 
-	getPiece(pos: Position): BoardSquare {
-		if(pos.x < 0 || pos.y < 0 || pos.x > 7 || pos.y > 7 ) {
-			return { type: Empty.InvalidSquare };
-		}
-		return this.board[pos.y][pos.x];
-	}
-
 	emptyBoard() {
 		const empty = { type: Empty.None };
 		this.board = [
@@ -86,7 +79,13 @@ class StandardBoard extends Board {
 		]
 	}
 
-	
+	getPiece(pos: Position): BoardSquare {
+		if(pos.x < 0 || pos.y < 0 || pos.x > 7 || pos.y > 7 ) {
+			return { type: Empty.InvalidSquare };
+		}
+		return this.board[pos.y][pos.x];
+	}
+
 	getPath(src: Position, dest: Position): Position[] {
 		let path: Position[] = [];
 		if(src == dest) path = [src];
@@ -113,6 +112,74 @@ class StandardBoard extends Board {
 			}	
 		}
 		return path;
+	}
+
+	isPositionCheckmate(team: number): boolean {
+		for (let ii = 0; ii < this.sizeX; ii++) {
+			for (let jj = 0; jj < this.sizeY; jj++) {
+				let srcPos = { x: jj, y: ii }
+				let target = this.getPiece({ x: jj, y: ii });
+				if(target.team == team) {
+					for (let yy = 0; yy < this.sizeX; yy++) {
+						for (let xx = 0; xx < this.sizeY; xx++) {
+							if(this.isMovePossible(srcPos, { x: xx, y: yy })) return false;	
+						}
+					}
+				}
+			}
+			
+		}
+	
+		return true;
+	}
+
+	movePiece(src: Position, dest: Position): Board {
+		let piece = this.getPiece(src);
+		// Ensure the move is valid
+		if(!this.isMovePossible(src, dest) || piece.team !== this.currTeam){
+			console.error(`InvalidMoveException: Team ${this.currTeam} tried to move from [${src.x}, ${src.y}] to [${dest.x}, ${dest.y}] on move ${this.moveNumber}`);	
+			return this;
+		}
+		let ans = this;
+		// Swap the pieces
+		ans.board[dest.y][dest.x] = piece;
+		ans.board[src.y][src.x] = { type: Empty.None };
+		console.log(`Team ${this.currTeam} moved from [${src.x}, ${src.y}] to [${dest.x}, ${dest.y}] on move ${this.moveNumber}`);	
+		// Increment move and team counter
+		if(piece.type == PieceType.Pawn) {
+			ans.pawnsMoved[piece.team!][src.x] = true;
+		}
+		ans.currTeam += 1;
+		ans.currTeam %= this.teams;
+		if(piece.team == 0) ans.moveNumber++;
+		return ans;
+	}
+
+	isMovePossible(src: Position, dest: Position): boolean {
+		let { type, team } = this.getPiece(src);
+		// if(Object.values(Empty).includes(typeof type)) return false;
+		if(dest.x < 0 || dest.y < 0 || dest.x > this.sizeX || dest.y > this.sizeY ) return false;
+		if(dest.x == src.x && dest.y == src.y) return false;
+		let path = this.getPath(src, dest);
+		if(this.getPiece(dest).type != Empty.None && this.getPiece(dest).team == team) return false;
+		if(this.isPieceInPath(team!, path)) return false;
+		if(this.movePutsInCheck(src, dest)) return false;
+		switch (type) {
+			case PieceType.King:
+				return this.isMovePossibleKing(src, dest);
+			case PieceType.Queen:
+				return this.isMovePossibleQueen(src, dest);
+			case PieceType.Bishop:
+				return this.isMovePossibleBishop(src, dest);
+			case PieceType.Knight:
+				return this.isMovePossibleKnight(src, dest);
+			case PieceType.Rook:
+				return this.isMovePossibleRook(src, dest);
+			case PieceType.Pawn:
+				return this.isMovePossiblePawn(team!, src, dest);
+			default:
+				return false;
+		}
 	}
 	 
 	isPieceInPath(team: number, path: Position[]): boolean {
@@ -149,57 +216,6 @@ class StandardBoard extends Board {
 		this.board[dest.y][dest.x] = target;
 		this.board[src.y][src.x] = piece;
 		return false;
-	}
-
-	movePiece(src: Position, dest: Position): Board {
-		let piece = this.getPiece(src);
-		// Ensure the move is valid
-		if(!this.isMovePossible(src, dest) || piece.team !== this.currTeam){
-			console.error(`InvalidMoveException: Team ${this.currTeam} tried to move from [${src.x}, ${src.y}] to [${dest.x}, ${dest.y}] on move ${this.moveNumber}`);	
-			return this;
-		}
-		let ans = this;
-
-		// Swap the pieces
-		ans.board[dest.y][dest.x] = piece;
-		ans.board[src.y][src.x] = { type: Empty.None };
-		console.log(`Team ${this.currTeam} moved from [${src.x}, ${src.y}] to [${dest.x}, ${dest.y}] on move ${this.moveNumber}`);	
-
-		// Increment move and team counter
-		if(piece.type == PieceType.Pawn) {
-			ans.pawnsMoved[piece.team!][src.x] = true;
-		}
-		ans.currTeam += 1;
-		ans.currTeam %= this.teams;
-		if(piece.team == 0) ans.moveNumber++;
-		return ans;
-	}
-
-	isMovePossible(src: Position, dest: Position): boolean {
-		let { type, team } = this.getPiece(src);
-		// if(Object.values(Empty).includes(typeof type)) return false;
-		if(dest.x < 0 || dest.y < 0 || dest.x > this.sizeX || dest.y > this.sizeY ) return false;
-		if(dest.x == src.x && dest.y == src.y) return false;
-		let path = this.getPath(src, dest);
-		if(this.getPiece(dest).type != Empty.None && this.getPiece(dest).team == team) return false;
-		if(this.isPieceInPath(team!, path)) return false;
-		if(this.movePutsInCheck(src, dest)) return false;
-		switch (type) {
-			case PieceType.King:
-				return this.isMovePossibleKing(src, dest);
-			case PieceType.Queen:
-				return this.isMovePossibleQueen(src, dest);
-			case PieceType.Bishop:
-				return this.isMovePossibleBishop(src, dest);
-			case PieceType.Knight:
-				return this.isMovePossibleKnight(src, dest);
-			case PieceType.Rook:
-				return this.isMovePossibleRook(src, dest);
-			case PieceType.Pawn:
-				return this.isMovePossiblePawn(team!, src, dest);
-			default:
-				return false;
-		}
 	}
 
 	isMovePossibleKing(src: Position, dest: Position): boolean {
