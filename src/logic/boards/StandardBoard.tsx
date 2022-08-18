@@ -78,9 +78,18 @@ class StandardBoard extends Board {
 	}
 
 	setPiece(pos: Position, piece: Piece) {
+		let target = this.getPiece(pos);
+		if (piece.position.x !== -1 && piece.position.y !== -1) {
+			this.board[piece.position.y][piece.position.x] = new Piece(-1, {
+				x: -1,
+				y: -1,
+			});
+		}
 		this.board[pos.y][pos.x] = piece;
-		if (this.getPiece(pos).type !== 0)
-			this.getPiece(pos).position = { x: -1, y: -1 };
+		if (target.type !== 0) {
+			target.position = { x: -1, y: -1 };
+			target.setRanges({ x: -1, y: -1 }); // Clears the targets movement and capturing range
+		}
 		if (piece.type === 0) return;
 		piece.position = pos;
 		piece.setRanges(pos);
@@ -189,10 +198,9 @@ class StandardBoard extends Board {
 		let piece = this.getPiece(src);
 		let target = this.getPiece(dest);
 		let ans = false;
-		this.setPiece(src, new Piece(-1, src));
 		this.setPiece(dest, piece);
+		this.setPiece(src, new Piece(-1, src));
 		ans = this.isPositionCheck(piece.team);
-		console.log(ans);
 		this.setPiece(src, piece);
 		this.setPiece(dest, target);
 		return ans;

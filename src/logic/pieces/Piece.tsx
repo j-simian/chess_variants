@@ -65,6 +65,9 @@ class Piece {
 	setRanges(position: Position) {
 		this.moveRange = [];
 		this.captureRange = [];
+		if (position.x === -1 && position.y === -1) {
+			return;
+		}
 	}
 }
 
