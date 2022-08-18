@@ -3,7 +3,7 @@ import Army from "../pieces/Army";
 
 export type Position = { x: number; y: number };
 
-export var Empty = {
+export const Empty = {
 	None: new Piece(0, { x: -1, y: -1 }),
 	InvalidSquare: new Piece(-1, { x: -1, y: -1 }),
 };
@@ -11,13 +11,13 @@ export var Empty = {
 export type BoardSquare = Piece;
 
 export function getPosition(notation: string): Position {
-	var moveRegex: RegExp = /^[a-zA-z][1-8]$/gm;
+	const moveRegex = /^[a-zA-z][1-8]$/gm;
 	if (!moveRegex.test(notation)) {
 		console.error(`Tried to get position of ${notation}!`);
 		return { x: -1, y: -1 };
 	}
-	let file = notation.toLowerCase().charCodeAt(0) - "a".charCodeAt(0);
-	let rank = parseInt(notation.substring(1)) - 1;
+	const file = notation.toLowerCase().charCodeAt(0) - "a".charCodeAt(0);
+	const rank = parseInt(notation.substring(1)) - 1;
 
 	return { x: file, y: 7 - rank };
 }
@@ -30,12 +30,12 @@ export function getNotation(position: Position): string {
 
 abstract class Board {
 	abstract teams: number;
-	sizeX: number = 0;
-	sizeY: number = 0;
+	sizeX = 0;
+	sizeY = 0;
 
 	// Current state
-	moveNumber: number = 0;
-	currTeam: number = 0;
+	moveNumber = 0;
+	currTeam = 0;
 
 	armies: Army[] = [];
 
@@ -95,8 +95,8 @@ abstract class Board {
 	abstract isMovePossible(src: Position, dest: Position): boolean;
 
 	getPossibleMoves(piece: Piece): Position[] {
-		let moves: Position[] = [];
-		for (let pos of piece.moveRange) {
+		const moves: Position[] = [];
+		for (const pos of piece.moveRange) {
 			if (this.isMovePossible(piece.position, pos)) {
 				moves.push(pos);
 			}

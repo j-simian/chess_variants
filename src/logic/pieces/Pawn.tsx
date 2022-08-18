@@ -18,7 +18,7 @@ export default class Pawn extends Piece {
 	}
 
 	override isMovePossible(board: Board, dest: Position): boolean {
-		let target = board.getPiece(dest);
+		const target = board.getPiece(dest);
 		return super.isMovePossible(board, dest) 
 			&& (this.captureRange.find((p) => (p.x == dest.x && p.y == dest.y)) != undefined 
 			? target.type != 0 && target.team != this.team

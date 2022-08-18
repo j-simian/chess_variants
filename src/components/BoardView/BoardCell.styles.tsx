@@ -16,13 +16,13 @@ import WhitePawnSvg from "../../assets/pieces/pawn_white.svg";
 import { PieceType } from "../../logic/pieces/Piece";
 
 function colormix(x: string, y: string, t = 0.5): string {
-	let r =
+	const r =
 		parseInt(x.substring(1, 3), 16) * (1 - t) +
 		parseInt(y.substring(1, 3), 16) * t;
-	let g =
+	const g =
 		parseInt(x.substring(3, 5), 16) * (1 - t) +
 		parseInt(y.substring(3, 5), 16) * t;
-	let b =
+	const b =
 		parseInt(x.substring(5, 7), 16) * (1 - t) +
 		parseInt(y.substring(5, 7), 16) * t;
 	return "#" + r.toString(16) + g.toString(16) + b.toString(16);

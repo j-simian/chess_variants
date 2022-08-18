@@ -6,15 +6,15 @@ import { BoardContainer, BoardRow } from "./BoardView.styles";
 import BoardCell from "./BoardCell";
 
 const BoardView = () => {
-	let [board, setBoard] = useState<Board>(new StandardBoard());
-	let cells = [];
-	let [selectedPiece, setSelectedPiece] = useState<Position>({
+	const [board, setBoard] = useState<Board>(new StandardBoard());
+	const cells = [];
+	const [selectedPiece, setSelectedPiece] = useState<Position>({
 		x: -1,
 		y: -1,
 	});
 
 	function selectPiece(pos: Position) {
-		let piece = board.getPiece(selectedPiece);
+		const piece = board.getPiece(selectedPiece);
 		if (piece.type != 0 && piece.team == board.currTeam) {
 			if (board.isMovePossible(selectedPiece, pos))
 				setBoard(board.movePiece(selectedPiece, pos));
@@ -25,9 +25,9 @@ const BoardView = () => {
 	}
 
 	for (let ii = 0; ii < board.sizeX; ii++) {
-		let rowCells = [];
+		const rowCells = [];
 		for (let jj = 0; jj < board.sizeY; jj++) {
-			let currPos = { x: jj, y: ii };
+			const currPos = { x: jj, y: ii };
 			rowCells.push(
 				<BoardCell
 					colour={(jj + ii) % 2}
@@ -42,7 +42,7 @@ const BoardView = () => {
 				/>
 			);
 		}
-		let row = <BoardRow>{rowCells}</BoardRow>;
+		const row = <BoardRow>{rowCells}</BoardRow>;
 		cells.push(row);
 	}
 

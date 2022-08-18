@@ -13,7 +13,7 @@ enum AppPage {
 }
 
 function App() {
-	var [state, setState] = useState<AppPage>(AppPage.FindGame);
+	const [state, setState] = useState<AppPage>(AppPage.FindGame);
 
 	function joinGame(code: string) {
 		setState(AppPage.InGame);

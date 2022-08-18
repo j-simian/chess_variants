@@ -18,7 +18,7 @@ const BoardCell = ({
 	onSelect,
 	highlight,
 }: BoardCellProps) => {
-	let piece = board.getPiece(pos);
+	const piece = board.getPiece(pos);
 	return (
 		<BoardCellStyled
 			colour={colour}

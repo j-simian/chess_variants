@@ -24,7 +24,7 @@ class Piece {
 	}
 
 	isMovePossible(board: Board, dest: Position): boolean {
-		let target = board.getPiece(dest);
+		const target = board.getPiece(dest);
 		if (
 			this.moveRange.find((p) => p.x === dest.x && p.y === dest.y) ===
 			undefined

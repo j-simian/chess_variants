@@ -2,9 +2,9 @@ import Piece from "./Piece";
 import { cloneDeep } from "lodash";
 
 export function mirrorPosition(pieces: Piece[]): Piece[] {
-	let piecesCopy: Piece[] = [];
+	const piecesCopy: Piece[] = [];
 	pieces.forEach((p) => piecesCopy.push(cloneDeep(p)));
-	let mirrored = piecesCopy.map((p) => {
+	const mirrored = piecesCopy.map((p) => {
 		p.position = { x: p.position.x, y: 7 - p.position.y };
 		return p;
 	});

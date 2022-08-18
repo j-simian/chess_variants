@@ -41,7 +41,7 @@ class StandardBoard extends Board {
 	}
 
 	initBoard() {
-		let white = new Army(0, [
+		const white = new Army(0, [
 			new King(0, getPosition("e1")),
 			new Queen(0, getPosition("d1")),
 			new Rook(0, getPosition("a1")),
@@ -59,12 +59,12 @@ class StandardBoard extends Board {
 			new Pawn(0, getPosition("g2")),
 			new Pawn(0, getPosition("h2")),
 		]);
-		let black = new Army(1, mirrorPosition(white.pieces));
+		const black = new Army(1, mirrorPosition(white.pieces));
 		this.emptyBoard();
 		this.armies.push(white);
 		this.armies.push(black);
-		for (let t of this.armies) {
-			for (let p of t.pieces) {
+		for (const t of this.armies) {
+			for (const p of t.pieces) {
 				this.setPiece(p.position, p);
 			}
 		}
@@ -78,7 +78,7 @@ class StandardBoard extends Board {
 	}
 
 	setPiece(pos: Position, piece: Piece) {
-		let target = this.getPiece(pos);
+		const target = this.getPiece(pos);
 		if (piece.position.x !== -1 && piece.position.y !== -1) {
 			this.board[piece.position.y][piece.position.x] = new Piece(-1, {
 				x: -1,
@@ -99,21 +99,21 @@ class StandardBoard extends Board {
 		let path: Position[] = [];
 		if (src == dest) path = [src];
 		else if (src.x == dest.x) {
-			let dist = Math.abs(dest.y - src.y);
-			let dir = (dest.y - src.y) / dist;
+			const dist = Math.abs(dest.y - src.y);
+			const dir = (dest.y - src.y) / dist;
 			for (let ii = 0; ii <= dist; ii++) {
 				path.push({ x: src.x, y: src.y + ii * dir });
 			}
 		} else if (src.y == dest.y) {
-			let dist = Math.abs(src.x - dest.x);
-			let dir = (dest.x - src.x) / dist;
+			const dist = Math.abs(src.x - dest.x);
+			const dir = (dest.x - src.x) / dist;
 			for (let ii = 0; ii <= dist; ii++) {
 				path.push({ x: src.x + ii * dir, y: src.y });
 			}
 		} else if (Math.abs(dest.x - src.x) == Math.abs(dest.y - src.y)) {
-			let dist = Math.abs(src.x - dest.x);
-			let dirX = (dest.x - src.x) / dist;
-			let dirY = (dest.y - src.y) / dist;
+			const dist = Math.abs(src.x - dest.x);
+			const dirX = (dest.x - src.x) / dist;
+			const dirY = (dest.y - src.y) / dist;
 			for (let ii = 0; ii <= dist; ii++) {
 				path.push({ x: src.x + ii * dirX, y: src.y + ii * dirY });
 			}
@@ -122,12 +122,12 @@ class StandardBoard extends Board {
 	}
 
 	isPositionCheck(team: number): boolean {
-		let king = this.armies[team].pieces.find(
+		const king = this.armies[team].pieces.find(
 			(p) => p.type == PieceType.King
 		);
-		for (let a of this.armies) {
+		for (const a of this.armies) {
 			if (a.team != team) {
-				for (let p of a.pieces) {
+				for (const p of a.pieces) {
 					if (p.deliversCheck(king!.position, this)) {
 						return true;
 					}
@@ -139,9 +139,9 @@ class StandardBoard extends Board {
 
 	isPositionCheckmate(team: number): boolean {
 		if (!this.isPositionCheck(team)) return false;
-		for (let a of this.armies) {
+		for (const a of this.armies) {
 			if (a.team == team) {
-				for (let p of a.pieces) {
+				for (const p of a.pieces) {
 					if (p.moveRange != []) {
 						return false;
 					}
@@ -152,34 +152,26 @@ class StandardBoard extends Board {
 	}
 
 	movePiece(src: Position, dest: Position, hidden?: boolean): Board {
-		let piece = this.getPiece(src);
-		// Ensure the move is valid
-		// if (!this.isMovePossible(src, dest) || piece.team !== this.currTeam) {
-		// 	console.error(
-		// 		`InvalidMoveException: Team ${this.currTeam} tried to move from ${getNotation(src)} to ${getNotation(dest)} on move ${this.moveNumber}`
-		// 	);
-		// 	return this;
-		// }
-		let ans = this;
+		const piece = this.getPiece(src);
 		// Swap the pieces
-		ans.setPiece(src, new Piece(-1, { x: -1, y: -1 }));
-		ans.setPiece(dest, piece);
+		this.setPiece(src, new Piece(-1, { x: -1, y: -1 }));
+		this.setPiece(dest, piece);
 		piece.movePiece(dest);
-		if (hidden) return ans;
+		if (hidden != null && hidden) return this;
 		console.log(
 			`Team ${this.currTeam} moved from ${getNotation(
 				src
 			)} to ${getNotation(dest)} on move ${this.moveNumber}`
 		);
-		ans.currTeam += 1;
-		ans.currTeam %= this.teams;
-		if (piece.team == 0) ans.moveNumber++;
-		return ans;
+		this.currTeam += 1;
+		this.currTeam %= this.teams;
+		if (piece.team == 0) this.moveNumber++;
+		return this;
 	}
 
 	isMovePossible(src: Position, dest: Position): boolean {
-		let piece = this.getPiece(src);
-		let path = this.getPath(src, dest);
+		const piece = this.getPiece(src);
+		const path = this.getPath(src, dest);
 		if (!piece.isMovePossible(this, dest)) return false;
 		if (this.isPieceInPath(piece.team, path)) return false;
 		if (this.movePutsInCheck(src, dest)) return false;
@@ -195,8 +187,8 @@ class StandardBoard extends Board {
 	}
 
 	movePutsInCheck(src: Position, dest: Position): boolean {
-		let piece = this.getPiece(src);
-		let target = this.getPiece(dest);
+		const piece = this.getPiece(src);
+		const target = this.getPiece(dest);
 		let ans = false;
 		this.setPiece(dest, piece);
 		this.setPiece(src, new Piece(-1, src));
@@ -228,8 +220,8 @@ class StandardBoard extends Board {
 
 	isMovePossiblePawn(team: number, src: Position, dest: Position): boolean {
 		// TODO en-passant
-		let piece = this.getPiece(src);
-		let capture = this.getPiece(dest);
+		const piece = this.getPiece(src);
+		const capture = this.getPiece(dest);
 		if (
 			dest.y - src.y == team * 2 - 1 &&
 			Math.abs(dest.x - src.x) == 1 &&
