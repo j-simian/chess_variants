@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 import { InGamePageContainer } from "../components/PageContainer/PageContainer";
 import BoardView from "../components/BoardView/BoardView";

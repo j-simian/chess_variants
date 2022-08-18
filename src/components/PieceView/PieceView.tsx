@@ -1,5 +1,5 @@
-import React from 'react';
-import { PieceType } from '../../logic/pieces/Piece';
+import React from "react";
+import { PieceType } from "../../logic/pieces/Piece";
 import PieceObject from "./PieceView.styles";
 
 interface PieceViewProps {
@@ -7,9 +7,7 @@ interface PieceViewProps {
 }
 
 const PieceView = ({ piece }: PieceViewProps) => {
-	return (
-		<PieceObject />
-	);
+	return <PieceObject />;
 };
 
 export default PieceView;

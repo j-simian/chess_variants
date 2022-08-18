@@ -1,18 +1,22 @@
-import React from 'react';
+import React from "react";
 
-import { Button } from '@mui/material';
+import { Button } from "@mui/material";
 
 import { OrLabel, GameCodeField } from "./FindGame.styles";
 import { FindGamePageContainer } from "../components/PageContainer";
 
 type FindGameProps = {
 	joinGame: (code: string) => void;
-}
+};
 
 const FindGamePage = ({ joinGame }: FindGameProps) => {
 	return (
 		<FindGamePageContainer>
-			<GameCodeField id="game-code" label="Enter a game code:" variant="outlined"/>
+			<GameCodeField
+				id="game-code"
+				label="Enter a game code:"
+				variant="outlined"
+			/>
 			<Button variant="contained" onClick={(e) => joinGame("")}>
 				Join Game
 			</Button>

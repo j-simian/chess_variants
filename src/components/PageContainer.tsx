@@ -10,11 +10,7 @@ const PageContainer = styled("div")(({ theme }: { theme: Theme }) => ({
 	overflow: "none",
 }));
 
-export const FindGamePageContainer = styled(PageContainer)`
-
-`
-export const InGamePageContainer = styled(PageContainer)`
-
-`
+export const FindGamePageContainer = styled(PageContainer)``;
+export const InGamePageContainer = styled(PageContainer)``;
 
 export default PageContainer;

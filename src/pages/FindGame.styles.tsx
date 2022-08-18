@@ -1,4 +1,4 @@
-import {TextField} from "@mui/material";
+import { TextField } from "@mui/material";
 import { styled, Theme } from "@mui/material/styles";
 
 export const OrLabel = styled("p")(({ theme }: { theme: Theme }) => ({
@@ -6,7 +6,9 @@ export const OrLabel = styled("p")(({ theme }: { theme: Theme }) => ({
 	marginRight: theme.spacing(2),
 }));
 
-export const GameCodeField = styled(TextField)(({ theme }: { theme: Theme }) => ({
-	marginLeft: theme.spacing(1),
-	marginRight: theme.spacing(1),
-}));
+export const GameCodeField = styled(TextField)(
+	({ theme }: { theme: Theme }) => ({
+		marginLeft: theme.spacing(1),
+		marginRight: theme.spacing(1),
+	})
+);
